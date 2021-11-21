@@ -8,6 +8,8 @@ set_property(GLOBAL PROPERTY IS_PETE_STD_LIB_SETUP_PROP TRUE)
 
 project("Pete GSL" VERSION "0.1.0")
 
+enable_testing()
+
 include(base.cmake)
 
 add_subdirectory("lib")
