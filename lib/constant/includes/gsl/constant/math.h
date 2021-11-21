@@ -42,11 +42,12 @@ constexpr auto PI_4 = 0.78539816339744830961566084582; /* pi/4 */
 
 constexpr auto SQRTPI = 1.77245385090551602729816748334; /* sqrt(pi) */
 
-constexpr auto 2_SQRTPI = 1.12837916709551257389615890312; /* 2/sqrt(pi) */
+constexpr auto TWO_DIV_SQRTPI =
+    1.12837916709551257389615890312; /* 2/sqrt(pi) */
 
-constexpr auto 1_PI = 0.31830988618379067153776752675; /* 1/pi */
+constexpr auto ONE_DIV_PI = 0.31830988618379067153776752675; /* 1/pi */
 
-constexpr auto 2_PI = 0.63661977236758134307553505349; /* 2/pi */
+constexpr auto TWO_DIV_PI = 0.63661977236758134307553505349; /* 2/pi */
 
 constexpr auto LN10 = 2.30258509299404568401799145468; /* ln(10) */
 
@@ -55,4 +56,5 @@ constexpr auto LN2 = 0.69314718055994530941723212146; /* ln(2) */
 constexpr auto LNPI = 1.14472988584940017414342735135; /* ln(pi) */
 
 constexpr auto EULER = 0.57721566490153286060651209008; /* Euler constant */
+
 }  // namespace gsl::constant::math

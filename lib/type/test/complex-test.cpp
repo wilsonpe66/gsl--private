@@ -1,14 +1,16 @@
+#include <gsl/constant/machine.h>
+#include <gsl/constant/math.h>
 #include <gsl/type/complex.h>
 #include <gtest/gtest.h>
 
 #include <iostream>
 
+using gsl::constant::math::PI;
+
 using gsl::type::complex;
 
-constexpr auto PI = 3.1415926535897932384626433832795L;
-
 #define MESSAGE(v) std::cout << "MESSAGE: " << #v << " => " << (v) << "\n";
-#define EXPECT_EQ_DBL(a, b) EXPECT_TRUE(abs((a) - (b)) < 1e-15)
+#define EXPECT_EQ_DBL(a, b) EXPECT_TRUE(abs((a) - (b)) < 1e-15L)
 
 #define EXPECT_STATUS_RECT(v, real_exp, img_exp)      \
   {                                                   \
@@ -147,6 +149,16 @@ TEST(GSLTypeComplex, ComplexPolarConstructorsTest) {
   {
     const complex v{complex::polar, 2, -PI / 4};
     EXPECT_STATUS_POLAR(v, 2 / sqrt(2), -2 / sqrt(2));
+  }
+
+  {
+    for (size_t i = 0; i < 10; i++) {
+      const double r = (i - 5.0) * 0.3;
+      const double t = 2.0 * PI * i / 5;
+      const double x = r * cos(t), y = r * sin(t);
+      const complex v{complex::polar, r, t};
+      EXPECT_STATUS_POLAR(v, x, y);
+    }
   }
 }
 
