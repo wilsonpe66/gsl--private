@@ -59,6 +59,10 @@ class complex_base {
   constexpr el_type& real() { return std::get<0>(data); }
   constexpr el_type& img() { return std::get<1>(data); }
 
+  constexpr auto operator==(const self_type& rhs) const {
+    return data == rhs.data;
+  }
+
   constexpr el_type norm() const { return real() * real() + img() * img(); }
 
   constexpr el_type angle_in_rads() const { return atan2(img(), real()); }
@@ -137,6 +141,7 @@ class complex_base {
   constexpr static self_type ZERO{0.0, 0};
   constexpr static self_type NEG_ONE{-1.0, 0};
   constexpr static self_type I{0, 1};
+  constexpr static self_type NEG_I{0, -1};
 };
 
 using complex_long_double = complex_base<long double>;

@@ -1,6 +1,6 @@
-/* complex/test.cpp
+/* const/test.cpp
  *
- * Copyright (C) 1996, 1997, 1998, 1999, 2000 Brian Gough
+ * Copyright (C) 2003 Brian Gough
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +19,12 @@
  */
 
 #include <config.h>
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_complex_math.h>
+#include <gsl/gsl_const.h>
 #include <gsl/gsl_ieee_utils.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_test.h>
 
-#include <cstdio>
+#include <cmath>
 #include <cstdlib>
 
 #define MESSAGE(v) std::cout << "MESSAGE: " << #v << " => " << (v) << "\n";
@@ -35,150 +34,69 @@
 #define EXPECT_EQ_REL_DBL(testValue, expectedValue) \
   EXPECT_EQ_REL_DBLE((testValue), (expectedValue), 1e-10)
 
-// TEST(GSLContant, ConstantsSpeedOfLightMKSTest) {
-//   const auto c = gsl::constant::mks::SPEED_OF_LIGHT;
-//   const auto eps = gsl::constant::mks::VACUUM_PERMITTIVITY;
-//   const auto mu = gsl::constant::mks::VACUUM_PERMEABILITY;
-
-//   EXPECT_EQ_REL_DBL(c, 1.0 / sqrt(eps * mu));
-// }
-
-struct f {
-  char *name;
-  double (*f)(gsl_complex z);
-  double x;
-  double y;
-  double fx;
-  double fy;
-};
-
-struct fz {
-  char *name;
-  gsl_complex (*f)(gsl_complex z);
-  double x;
-  double y;
-  double fx;
-  double fy;
-};
-
-struct freal {
-  char *name;
-  gsl_complex (*f)(double x);
-  double x;
-  double fx;
-  double fy;
-};
-
-#define FN(x) "gsl_complex_" #x, gsl_complex_##x
-#define ARG(x, y) x, y
-#define RES(x, y) x, y
-
-struct f list[] = {
-#include "results1.h"
-    {"", 0, 0, 0, 0, 0}};
-
-struct fz listz[] = {
-#include "results.h"
-    {"", 0, 0, 0, 0, 0}};
-
-struct freal listreal[] = {
-#include "results_real.h"
-    {"", 0, 0, 0, 0}};
-
 int main(void) {
-  size_t i = 0;
-
   gsl_ieee_env_setup();
 
-  for (i = 0; i < 10; i++) {
-    double r = (i - 5.0) * 0.3;
-    double t = 2.0 * M_PI * i / 5;
-    double x = r * cos(t), y = r * sin(t);
-    gsl_complex z = gsl_complex_polar(r, t);
-    gsl_test_rel(GSL_REAL(z), x, 10 * GSL_DBL_EPSILON,
-                 "gsl_complex_polar real part at (r=%g,t=%g)", r, t);
+  /* Basic check to make sure the header files are functioning */
 
-    gsl_test_rel(GSL_IMAG(z), y, 10 * GSL_DBL_EPSILON,
-                 "gsl_complex_polar imag part at (r=%g,t=%g)", r, t);
+  {
+    double c = GSL_CONST_MKS_SPEED_OF_LIGHT;
+    double eps = GSL_CONST_MKS_VACUUM_PERMITTIVITY;
+    double mu = GSL_CONST_MKS_VACUUM_PERMEABILITY;
+
+    gsl_test_rel(c, 1.0 / sqrt(eps * mu), 1e-6, "speed of light (mks)");
   }
 
-  i = 0;
+  {
+    double ly = GSL_CONST_CGS_LIGHT_YEAR;
+    double c = GSL_CONST_CGS_SPEED_OF_LIGHT;
+    double y = 365.2425 * GSL_CONST_CGS_DAY;
 
-  while (list[i].f) {
-    struct f t = list[i];
-    gsl_complex z = gsl_complex_rect(t.x, t.y);
-    double f = (t.f)(z);
-    gsl_test_rel(f, t.fx, 10 * GSL_DBL_EPSILON, "%s at (%g,%g)", t.name, t.x,
-                 t.y);
-    i++;
+    gsl_test_rel(ly, c * y, 1e-6, "light year (cgs)");
   }
 
-  i = 0;
+  {
+    double c = GSL_CONST_MKSA_SPEED_OF_LIGHT;
+    double eps = GSL_CONST_MKSA_VACUUM_PERMITTIVITY;
+    double mu = GSL_CONST_MKSA_VACUUM_PERMEABILITY;
 
-  while (listz[i].f) {
-    struct fz t = listz[i];
-    gsl_complex z = gsl_complex_rect(t.x, t.y);
-    gsl_complex fz = (t.f)(z);
-    double fx = GSL_REAL(fz), fy = GSL_IMAG(fz);
-
-#ifdef DEBUG
-    printf("x = ");
-    gsl_ieee_fprintf_double(stdout, &t.x);
-    printf("\n");
-    printf("y = ");
-    gsl_ieee_fprintf_double(stdout, &t.y);
-    printf("\n");
-    printf("fx = ");
-    gsl_ieee_fprintf_double(stdout, &fx);
-    printf("\n");
-    printf("ex = ");
-    gsl_ieee_fprintf_double(stdout, &t.fx);
-    printf("\n");
-    printf("fy = ");
-    gsl_ieee_fprintf_double(stdout, &fy);
-    printf("\n");
-    printf("ey = ");
-    gsl_ieee_fprintf_double(stdout, &t.fy);
-    printf("\n");
-#endif
-
-    gsl_test_rel(fx, t.fx, 10 * GSL_DBL_EPSILON, "%s real part at (%g,%g)",
-                 t.name, t.x, t.y);
-    gsl_test_rel(fy, t.fy, 10 * GSL_DBL_EPSILON, "%s imag part at (%g,%g)",
-                 t.name, t.x, t.y);
-    i++;
+    gsl_test_rel(c, 1.0 / sqrt(eps * mu), 1e-6, "speed of light (mksa)");
   }
 
-  i = 0;
+  {
+    double ly = GSL_CONST_CGSM_LIGHT_YEAR;
+    double c = GSL_CONST_CGSM_SPEED_OF_LIGHT;
+    double y = 365.2425 * GSL_CONST_CGSM_DAY;
 
-  while (listreal[i].f) {
-    struct freal t = listreal[i];
-    gsl_complex fz = (t.f)(t.x);
-    double fx = GSL_REAL(fz), fy = GSL_IMAG(fz);
+    gsl_test_rel(ly, c * y, 1e-6, "light year (cgsm)");
+  }
 
-#ifdef DEBUG
-    printf("x = ");
-    gsl_ieee_fprintf_double(stdout, &t.x);
-    printf("\n");
-    printf("fx = ");
-    gsl_ieee_fprintf_double(stdout, &fx);
-    printf("\n");
-    printf("ex = ");
-    gsl_ieee_fprintf_double(stdout, &t.fx);
-    printf("\n");
-    printf("fy = ");
-    gsl_ieee_fprintf_double(stdout, &fy);
-    printf("\n");
-    printf("ey = ");
-    gsl_ieee_fprintf_double(stdout, &t.fy);
-    printf("\n");
-#endif
+  {
+    double micro = GSL_CONST_NUM_MICRO;
+    double mega = GSL_CONST_NUM_MEGA;
+    double kilo = GSL_CONST_NUM_KILO;
 
-    gsl_test_rel(fx, t.fx, 10 * GSL_DBL_EPSILON, "%s real part at (%g,0)",
-                 t.name, t.x);
-    gsl_test_rel(fy, t.fy, 10 * GSL_DBL_EPSILON, "%s imag part at (%g,0)",
-                 t.name, t.x);
-    i++;
+    gsl_test_rel(mega / kilo, 1 / (micro * kilo), 1e-10,
+                 "kilo (mega/kilo, 1/(micro*kilo))");
+  }
+
+  {
+    double d = GSL_CONST_MKSA_DEBYE;
+    double c = GSL_CONST_MKSA_SPEED_OF_LIGHT;
+    double desu = d * c * 1000.0;
+
+    gsl_test_rel(desu, 1e-18, 1e-10, "debye (esu)");
+  }
+
+  {
+    double k = GSL_CONST_MKSA_BOLTZMANN;
+    double c = GSL_CONST_MKSA_SPEED_OF_LIGHT;
+    double h = GSL_CONST_MKSA_PLANCKS_CONSTANT_H;
+    double s =
+        2 * pow(M_PI, 5.0) * pow(k, 4.0) / (15 * pow(c, 2.0) * pow(h, 3.0));
+    double sigma = GSL_CONST_MKSA_STEFAN_BOLTZMANN_CONSTANT;
+
+    gsl_test_rel(s, sigma, 1e-10, "stefan boltzmann constant");
   }
 
   exit(gsl_test_summary());
