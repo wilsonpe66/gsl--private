@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <gsl/constant/math.h>
+
 #include <array>
 #include <cmath>
 #include <iostream>
@@ -63,17 +65,29 @@ class complex_base {
     return data == rhs.data;
   }
 
+  constexpr auto operator<=>(const self_type& rhs) const {
+    return norm() <=> rhs.norm();
+  }
+
   constexpr el_type norm() const { return real() * real() + img() * img(); }
 
-  constexpr el_type angle_in_rads() const { return atan2(img(), real()); }
+  constexpr el_type angle_in_rads() const {
+    using gsl::constant::math::PI;
+    using gsl::constant::math::PI_2;
+    const el_type eps = 1e-7;
+
+    if (dist() == 0) return 0;
+
+    return atan2(img(), real());
+  }
 
   constexpr el_type dist() const { return sqrt(norm()); }
 
-  constexpr self_type congugate() const { return self_type{real(), 0 - img()}; }
+  constexpr self_type congugate() const { return self_type{real(), -img()}; }
 
   constexpr self_type inverse() const { return congugate() / norm(); }
 
-  constexpr self_type neg() const { return {0 - real(), 0 - img()}; }
+  constexpr self_type neg() const { return {-real(), -img()}; }
 
   constexpr self_type operator+(const self_type& rhs) const {
     return {real() + rhs.real(), img() + rhs.img()};
@@ -86,6 +100,8 @@ class complex_base {
     return rhs.operator+(lhs);
   }
 
+  constexpr self_type operator-() const { return neg(); }
+
   constexpr self_type operator-(const self_type& rhs) const {
     return self_type{real() - rhs.real(), img() - rhs.img()};
   }
@@ -95,7 +111,7 @@ class complex_base {
   }
 
   friend constexpr self_type operator-(el_type lhs, const self_type& rhs) {
-    return self_type{lhs - rhs.real(), 0 - rhs.img()};
+    return self_type{lhs - rhs.real(), -rhs.img()};
   }
 
   constexpr self_type operator*(const self_type& rhs) const {
@@ -116,7 +132,8 @@ class complex_base {
   }
 
   constexpr self_type operator/(el_type rhs) const {
-    return self_type{real() / rhs, img() / rhs};
+    const auto d = 1 / rhs;
+    return self_type{real() * d, img() * d};
   }
 
   friend constexpr self_type operator/(el_type lhs, const self_type& rhs) {
