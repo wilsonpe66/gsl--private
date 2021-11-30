@@ -36,6 +36,8 @@ constexpr auto SQRT3 = 1.73205080756887729352744634151; /* sqrt(3) */
 
 constexpr auto PI = 3.14159265358979323846264338328; /* pi */
 
+constexpr auto TAO = 2 * PI; /* 2pi */
+
 constexpr auto PI_2 = 1.57079632679489661923132169164; /* pi/2 */
 
 constexpr auto PI_4 = 0.78539816339744830961566084582; /* pi/4 */

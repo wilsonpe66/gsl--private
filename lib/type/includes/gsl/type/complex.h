@@ -24,12 +24,13 @@
 
 #include <array>
 #include <cmath>
+#include <concepts>
 #include <iostream>
 
 namespace gsl::type {
 /* two consecutive built-in types as a complex number */
 
-template <typename T>
+template <std::floating_point T>
 class complex_base {
  private:
   struct polar_t {};
@@ -61,6 +62,8 @@ class complex_base {
   constexpr el_type& real() { return std::get<0>(data); }
   constexpr el_type& img() { return std::get<1>(data); }
 
+  constexpr operator bool() const { return real() || img(); }
+
   constexpr auto operator==(const self_type& rhs) const {
     return data == rhs.data;
   }
@@ -72,13 +75,21 @@ class complex_base {
   constexpr el_type norm() const { return real() * real() + img() * img(); }
 
   constexpr el_type angle_in_rads() const {
-    using gsl::constant::math::PI;
-    using gsl::constant::math::PI_2;
     const el_type eps = 1e-7;
 
     if (dist() == 0) return 0;
 
     return atan2(img(), real());
+  }
+
+  constexpr el_type angle_in_rads2() const {
+    using gsl::constant::math::PI;
+
+    auto rads = angle_in_rads();
+    if (rads < 0) {
+      rads += 2 * PI;
+    }
+    return rads;
   }
 
   constexpr el_type dist() const { return sqrt(norm()); }
